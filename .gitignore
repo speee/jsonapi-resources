@@ -18,6 +18,7 @@ test/tmp
 test/version_tmp
 tmp
 test/log
+log/*.log
 test_db
 test_db-journal
 .idea
