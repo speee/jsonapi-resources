@@ -22,3 +22,4 @@ test_db
 test_db-journal
 .idea
 *.iml
+.claude/settings.local.json
