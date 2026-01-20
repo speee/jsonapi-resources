@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Verify version matches
+        run: |
+          GEM_VERSION=$(ruby -r ./lib/jsonapi/resources/version.rb -e "puts JSONAPI::Resources::VERSION")
+          TAG_VERSION=${{ steps.get_version.outputs.VERSION }}
+          if [ "$GEM_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: gem version ($GEM_VERSION) != tag version ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "Version verified: $GEM_VERSION"
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog from $PREV_TAG to ${{ github.ref_name }}"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREV_TAG..${{ github.ref_name }} | head -50)
+          else
+            echo "No previous tag found, using recent commits"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" -20)
+          fi
+
+          # Write to file to preserve newlines
+          echo "$CHANGELOG" > /tmp/changelog.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: /tmp/changelog.txt
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
