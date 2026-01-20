@@ -11,6 +11,30 @@ services:
     stdin_open: true
     tty: true
 
+  # Rails 5.1.7
+  rails-5.1:
+    <<: *test-base
+    container_name: jsonapi-rails-5.1
+    environment:
+      - RAILS_VERSION=5.1.7
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
+  # Rails 5.2.8.1
+  rails-5.2:
+    <<: *test-base
+    container_name: jsonapi-rails-5.2
+    environment:
+      - RAILS_VERSION=5.2.8.1
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
+  # Rails 6.0.6
+  rails-6.0:
+    <<: *test-base
+    container_name: jsonapi-rails-6.0
+    environment:
+      - RAILS_VERSION=6.0.6
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
   # Rails 6.1.7.10
   rails-6.1:
     <<: *test-base
