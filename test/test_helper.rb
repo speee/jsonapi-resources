@@ -78,9 +78,10 @@ require 'minitest/mock'
 require 'jsonapi-resources'
 require 'pry'
 
-# Fix Psych::DisallowedClass error for Rails 6.0 with Ruby 2.7+
+# Fix Psych::DisallowedClass error for Rails 6.0 with Ruby 3.1+
 # In test environment, allow all classes from YAML (safe for test fixtures)
-if defined?(Psych::VERSION) && Psych::VERSION.to_f >= 3.1 && Rails::VERSION::MAJOR == 6 && Rails::VERSION::MINOR == 0
+# Note: Psych.unsafe_load was added in Psych 4.0 (Ruby 3.1), so we check for its existence
+if defined?(Psych::VERSION) && Psych.respond_to?(:unsafe_load) && Rails::VERSION::MAJOR == 6 && Rails::VERSION::MINOR == 0
   require 'psych'
 
   # Patch Psych.load to use unsafe_load in test environment
