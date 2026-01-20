@@ -13,7 +13,28 @@ module JSONAPI
     def self.status_code_for(status_symbol)
       return nil if status_symbol.nil?
 
-      # Try the symbol directly first
+      # Use Rack::Utils.status_code if available (Rack 3.0+)
+      if Rack::Utils.respond_to?(:status_code)
+        begin
+          # status_code returns integer, convert to string
+          code = Rack::Utils.status_code(status_symbol)
+          return code&.to_s
+        rescue ArgumentError
+          # If the symbol is not recognized, try deprecated symbols
+          if DEPRECATED_STATUS_SYMBOLS.key?(status_symbol)
+            begin
+              code = Rack::Utils.status_code(DEPRECATED_STATUS_SYMBOLS[status_symbol])
+              return code&.to_s
+            rescue ArgumentError
+              # Symbol not found even after trying deprecated mapping
+              return nil
+            end
+          end
+          return nil
+        end
+      end
+
+      # Fallback to SYMBOL_TO_STATUS_CODE for Rack 2.x
       code = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_symbol]
 
       # If not found and it's a deprecated symbol, try the new symbol
