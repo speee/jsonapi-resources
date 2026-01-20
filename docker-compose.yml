@@ -11,28 +11,60 @@ services:
     stdin_open: true
     tty: true
 
-  # Rails 6.1.7
+  # Rails 6.1.7.10
   rails-6.1:
     <<: *test-base
     container_name: jsonapi-rails-6.1
     environment:
-      - RAILS_VERSION=6.1.7
+      - RAILS_VERSION=6.1.7.10
     command: bash -c "bundle update && bundle exec rake test"
 
-  # Rails 7.0.4
+  # Rails 7.0.10
   rails-7.0:
     <<: *test-base
     container_name: jsonapi-rails-7.0
     environment:
-      - RAILS_VERSION=7.0.4
+      - RAILS_VERSION=7.0.10
     command: bash -c "bundle update && bundle exec rake test"
 
-  # Interactive shell for debugging (defaults to Rails 6.1)
+  # Rails 7.1.6
+  rails-7.1:
+    <<: *test-base
+    container_name: jsonapi-rails-7.1
+    environment:
+      - RAILS_VERSION=7.1.6
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Rails 7.2.3
+  rails-7.2:
+    <<: *test-base
+    container_name: jsonapi-rails-7.2
+    environment:
+      - RAILS_VERSION=7.2.3
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Rails 8.0.4
+  rails-8.0:
+    <<: *test-base
+    container_name: jsonapi-rails-8.0
+    environment:
+      - RAILS_VERSION=8.0.4
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Rails 8.1.2
+  rails-8.1:
+    <<: *test-base
+    container_name: jsonapi-rails-8.1
+    environment:
+      - RAILS_VERSION=8.1.2
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Interactive shell for debugging (defaults to Rails 8.1)
   shell:
     <<: *test-base
     container_name: jsonapi-shell
     environment:
-      - RAILS_VERSION=${RAILS_VERSION:-6.1.7}
+      - RAILS_VERSION=${RAILS_VERSION:-8.1.2}
     command: /bin/bash
 
 volumes:
