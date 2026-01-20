@@ -1,9 +1,9 @@
 services:
-  # Base service definition for Ruby 3.2 (Rails 6.1-8.1)
+  # Base service definition for Ruby 3.1.5 (Rails 6.1-8.1)
   test-base: &test-base
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.ruby3.1
     volumes:
       - .:/app
       - bundle-cache:/usr/local/bundle
@@ -11,7 +11,7 @@ services:
     stdin_open: true
     tty: true
 
-  # Base service definition for Ruby 2.7 (Rails 5.1-7.0)
+  # Base service definition for Ruby 2.7 (Rails 5.1-6.0)
   test-base-ruby27: &test-base-ruby27
     build:
       context: .
