@@ -1,5 +1,5 @@
 services:
-  # Base service definition
+  # Base service definition for Ruby 3.2 (Rails 6.1-8.1)
   test-base: &test-base
     build:
       context: .
@@ -11,9 +11,21 @@ services:
     stdin_open: true
     tty: true
 
+  # Base service definition for Ruby 2.7 (Rails 5.1-7.0)
+  test-base-ruby27: &test-base-ruby27
+    build:
+      context: .
+      dockerfile: Dockerfile.ruby2.7
+    volumes:
+      - .:/app
+      - bundle-cache-ruby27:/usr/local/bundle
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
   # Rails 5.1.7
   rails-5.1:
-    <<: *test-base
+    <<: *test-base-ruby27
     container_name: jsonapi-rails-5.1
     environment:
       - RAILS_VERSION=5.1.7
@@ -21,7 +33,7 @@ services:
 
   # Rails 5.2.8.1
   rails-5.2:
-    <<: *test-base
+    <<: *test-base-ruby27
     container_name: jsonapi-rails-5.2
     environment:
       - RAILS_VERSION=5.2.8.1
@@ -29,7 +41,7 @@ services:
 
   # Rails 6.0.6
   rails-6.0:
-    <<: *test-base
+    <<: *test-base-ruby27
     container_name: jsonapi-rails-6.0
     environment:
       - RAILS_VERSION=6.0.6
@@ -93,3 +105,4 @@ services:
 
 volumes:
   bundle-cache:
+  bundle-cache-ruby27:
