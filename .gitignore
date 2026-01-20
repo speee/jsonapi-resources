@@ -8,7 +8,7 @@
 Gemfile.lock
 InstalledFiles
 _yardoc
-coverage
+coverage/
 doc/
 lib/bundler/man
 pkg
@@ -17,10 +17,11 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
-coverage
 test/log
 log/*.log
 test_db
 test_db-journal
+test/test_db-shm
+test/test_db-wal
 .idea
 *.iml

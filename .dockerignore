@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+.github
+
+# Claude/AI configuration
+.claude
+.serena
+CLAUDE.md
+
+# Documentation
+*.md
+!README.md
+
+# Test artifacts
+coverage/
+test_db
+*.sqlite3
+.last_run.json
+.resultset.json
+
+# Ruby/bundler
+.bundle
+vendor/bundle
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~

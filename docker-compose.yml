@@ -1,0 +1,121 @@
+services:
+  # Base service definition for Ruby 3.1.5 (Rails 6.1-8.1)
+  test-base: &test-base
+    build:
+      context: .
+      dockerfile: Dockerfile.ruby3.1
+    volumes:
+      - .:/app
+      - bundle-cache-ruby31:/usr/local/bundle
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # Base service definition for Ruby 2.7 (Rails 5.1-6.0)
+  test-base-ruby27: &test-base-ruby27
+    build:
+      context: .
+      dockerfile: Dockerfile.ruby2.7
+    volumes:
+      - .:/app
+      - bundle-cache-ruby27:/usr/local/bundle
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # Base service definition for Ruby 3.4 (Rails 8.0-8.1)
+  test-base-ruby34: &test-base-ruby34
+    build:
+      context: .
+      dockerfile: Dockerfile.ruby3.4
+    volumes:
+      - .:/app
+      - bundle-cache-ruby34:/usr/local/bundle
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # Rails 5.1.7
+  rails-5.1:
+    <<: *test-base-ruby27
+    container_name: jsonapi-rails-5.1
+    environment:
+      - RAILS_VERSION=5.1.7
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
+  # Rails 5.2.8.1
+  rails-5.2:
+    <<: *test-base-ruby27
+    container_name: jsonapi-rails-5.2
+    environment:
+      - RAILS_VERSION=5.2.8.1
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
+  # Rails 6.0.6
+  rails-6.0:
+    <<: *test-base-ruby27
+    container_name: jsonapi-rails-6.0
+    environment:
+      - RAILS_VERSION=6.0.6
+    command: bash -c "rm -f Gemfile.lock && bundle install && bundle exec rake test"
+
+  # Rails 6.1.7.10
+  rails-6.1:
+    <<: *test-base
+    container_name: jsonapi-rails-6.1
+    environment:
+      - RAILS_VERSION=6.1.7.10
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 7.0.10
+  rails-7.0:
+    <<: *test-base
+    container_name: jsonapi-rails-7.0
+    environment:
+      - RAILS_VERSION=7.0.10
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 7.1.6
+  rails-7.1:
+    <<: *test-base
+    container_name: jsonapi-rails-7.1
+    environment:
+      - RAILS_VERSION=7.1.6
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 7.2.3
+  rails-7.2:
+    <<: *test-base
+    container_name: jsonapi-rails-7.2
+    environment:
+      - RAILS_VERSION=7.2.3
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 8.0.4 (Ruby 3.4 required)
+  rails-8.0:
+    <<: *test-base-ruby34
+    container_name: jsonapi-rails-8.0
+    environment:
+      - RAILS_VERSION=8.0.4
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 8.1.2 (Ruby 3.4 required)
+  rails-8.1:
+    <<: *test-base-ruby34
+    container_name: jsonapi-rails-8.1
+    environment:
+      - RAILS_VERSION=8.1.2
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Interactive shell for debugging (defaults to Rails 8.1)
+  shell:
+    <<: *test-base
+    container_name: jsonapi-shell
+    environment:
+      - RAILS_VERSION=${RAILS_VERSION:-8.1.2}
+    command: /bin/bash
+
+volumes:
+  bundle-cache-ruby31:
+  bundle-cache-ruby27:
+  bundle-cache-ruby34:

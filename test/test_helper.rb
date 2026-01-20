@@ -78,6 +78,25 @@ require 'minitest/mock'
 require 'jsonapi-resources'
 require 'pry'
 
+# Fix Psych::DisallowedClass error for Rails 6.0 with Ruby 2.7+
+# In test environment, allow all classes from YAML (safe for test fixtures)
+if defined?(Psych::VERSION) && Psych::VERSION.to_f >= 3.1 && Rails::VERSION::MAJOR == 6 && Rails::VERSION::MINOR == 0
+  require 'psych'
+
+  # Patch Psych.load to use unsafe_load in test environment
+  # This is safe because we're only loading trusted test fixtures
+  module Psych
+    class << self
+      alias_method :safe_load_original, :load
+
+      def load(yaml, *args, **kwargs)
+        # Use unsafe_load to allow Date, Time, DateTime from YAML
+        unsafe_load(yaml)
+      end
+    end
+  end
+end
+
 require File.expand_path('../helpers/value_matchers', __FILE__)
 require File.expand_path('../helpers/assertions', __FILE__)
 require File.expand_path('../helpers/functional_helpers', __FILE__)
