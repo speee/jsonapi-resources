@@ -1,0 +1,39 @@
+services:
+  # Base service definition
+  test-base: &test-base
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - bundle-cache:/usr/local/bundle
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # Rails 6.1.7
+  rails-6.1:
+    <<: *test-base
+    container_name: jsonapi-rails-6.1
+    environment:
+      - RAILS_VERSION=6.1.7
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Rails 7.0.4
+  rails-7.0:
+    <<: *test-base
+    container_name: jsonapi-rails-7.0
+    environment:
+      - RAILS_VERSION=7.0.4
+    command: bash -c "bundle update && bundle exec rake test"
+
+  # Interactive shell for debugging (defaults to Rails 6.1)
+  shell:
+    <<: *test-base
+    container_name: jsonapi-shell
+    environment:
+      - RAILS_VERSION=${RAILS_VERSION:-6.1.7}
+    command: /bin/bash
+
+volumes:
+  bundle-cache:
