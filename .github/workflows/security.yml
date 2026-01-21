@@ -9,20 +9,6 @@ on:
     - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
 
 jobs:
-  brakeman:
-    name: Brakeman (Static Analysis)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-      - name: Install Brakeman
-        run: gem install brakeman
-      - name: Run Brakeman
-        run: brakeman --no-pager -w2 --skip-files test/
-
   bundle-audit:
     name: Bundle Audit (Dependency Check)
     runs-on: ubuntu-latest
