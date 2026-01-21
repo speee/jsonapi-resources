@@ -96,6 +96,12 @@ module JSONAPI
       #    the ResourceInstances matching the filters, sorting, and pagination rules along with any request
       #    additional_field values
       def find_fragments(filters, options = {})
+        # PORO compatibility: if _model_class doesn't respond to :all, it's not ActiveRecord
+        # Fall back to find_by_key-based implementation for 0.9.x compatibility
+        unless _model_class.respond_to?(:all)
+          return find_fragments_for_non_active_record(filters, options)
+        end
+
         include_directives = options.fetch(:include_directives, {})
         resource_klass = self
 
@@ -366,6 +372,22 @@ module JSONAPI
                                                     resource_type: resource_type,
                                                     options: options)
         records.merge(relationship_records)
+      end
+
+      # Fallback implementation of find_fragments for non-ActiveRecord models (PORO)
+      # This provides 0.9.x compatibility by using find_by_key instead of records.pluck
+      def find_fragments_for_non_active_record(filters, options)
+        context = options[:context]
+        primary_keys = options.fetch(:primary_keys, nil) || filters[_primary_key]
+        return {} if primary_keys.blank?
+
+        fragments = {}
+        Array(primary_keys).each do |key|
+          resource = find_by_key(key, context: context)
+          identity = JSONAPI::ResourceIdentity.new(self, key)
+          fragments[identity] = JSONAPI::ResourceFragment.new(identity, resource: resource)
+        end
+        fragments
       end
 
       protected
