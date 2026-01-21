@@ -115,7 +115,91 @@ services:
       - RAILS_VERSION=${RAILS_VERSION:-8.1.2}
     command: /bin/bash
 
+  # Database services
+  mysql:
+    image: mysql:8.0
+    container_name: jsonapi-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jsonapi_test
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:14
+    container_name: jsonapi-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jsonapi_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Rails 6.1 with MySQL
+  rails-6.1-mysql:
+    <<: *test-base
+    container_name: jsonapi-rails-6.1-mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - RAILS_VERSION=6.1.7.10
+      - DATABASE_URL=mysql2://root:root@mysql:3306/jsonapi_test
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 6.1 with PostgreSQL
+  rails-6.1-postgres:
+    <<: *test-base
+    container_name: jsonapi-rails-6.1-postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - RAILS_VERSION=6.1.7.10
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/jsonapi_test
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 7.0 with MySQL
+  rails-7.0-mysql:
+    <<: *test-base
+    container_name: jsonapi-rails-7.0-mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - RAILS_VERSION=7.0.10
+      - DATABASE_URL=mysql2://root:root@mysql:3306/jsonapi_test
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
+  # Rails 7.0 with PostgreSQL
+  rails-7.0-postgres:
+    <<: *test-base
+    container_name: jsonapi-rails-7.0-postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - RAILS_VERSION=7.0.10
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/jsonapi_test
+    command: bash -c "rm -f Gemfile.lock && /usr/local/bin/bundler _2.4.14_ install && /usr/local/bin/bundler _2.4.14_ exec rake test"
+
 volumes:
   bundle-cache-ruby31:
   bundle-cache-ruby27:
   bundle-cache-ruby34:
+  mysql-data:
+  postgres-data:

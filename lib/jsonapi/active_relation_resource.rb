@@ -847,7 +847,7 @@ module JSONAPI
       end
 
       def quote(field)
-        "\"#{field.to_s}\""
+        _model_class.connection.quote_column_name(field.to_s)
       end
 
       def apply_filters(records, filters, options = {})
