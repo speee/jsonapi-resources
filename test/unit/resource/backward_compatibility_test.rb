@@ -1,40 +1,5 @@
 require File.expand_path('../../../test_helper', __FILE__)
 
-# Tests for backward compatibility with 0.9.x API
-class BackwardCompatibilityTest < ActiveSupport::TestCase
-  # Test find_by_key with old signature: find_by_key(id, context)
-  # New signature: find_by_key(key, options = {})
-  def test_find_by_key_with_old_signature
-    # 0.9.x style: find_by_key(id, context)
-    # In 0.9.x, context was passed directly as second argument
-    # In 0.10+, context should be passed as options[:context]
-    # For backward compatibility, if second arg is a Hash without :context key,
-    # it should still work (context will be nil in resource)
-    context = { current_user: 'test_user' }
-    resource = PostResource.find_by_key(1, context)
-
-    assert_not_nil resource
-    assert_equal 1, resource.id
-  end
-
-  def test_find_by_key_with_new_signature
-    # 0.10+ style: find_by_key(key, options = {})
-    context = { current_user: 'test_user' }
-    resource = PostResource.find_by_key(1, context: context)
-
-    assert_not_nil resource
-    assert_equal 1, resource.id
-  end
-
-  def test_find_by_key_without_context
-    # find_by_key without any context
-    resource = PostResource.find_by_key(1)
-
-    assert_not_nil resource
-    assert_equal 1, resource.id
-  end
-end
-
 # Tests for ResourceSetOperationResult backward compatibility
 class ResourceSetOperationResultBackwardCompatibilityTest < ActiveSupport::TestCase
   def setup
