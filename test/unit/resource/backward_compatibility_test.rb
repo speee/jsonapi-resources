@@ -1,5 +1,26 @@
 require File.expand_path('../../../test_helper', __FILE__)
 
+# Tests for apply_filters public accessibility (0.9.x compatibility)
+class ApplyFiltersAccessibilityTest < ActiveSupport::TestCase
+  def test_apply_filters_is_publicly_accessible
+    # In 0.9.x, apply_filters was public and could be called from outside
+    # Verify it's accessible as a public method
+    assert PostResource.respond_to?(:apply_filters, false),
+      "apply_filters should be a public class method for 0.9.x compatibility"
+  end
+
+  def test_apply_filters_can_be_called_externally
+    # Verify apply_filters can be called from outside the class
+    records = Post.all
+    filters = {}
+
+    # This should not raise NoMethodError
+    result = PostResource.apply_filters(records, filters)
+
+    assert_kind_of ActiveRecord::Relation, result
+  end
+end
+
 # Tests for ResourceSetOperationResult backward compatibility
 class ResourceSetOperationResultBackwardCompatibilityTest < ActiveSupport::TestCase
   def setup

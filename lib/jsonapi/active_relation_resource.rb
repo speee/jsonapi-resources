@@ -859,6 +859,7 @@ module JSONAPI
 
         records
       end
+      public :apply_filters  # Public for 0.9.x backward compatibility
 
       def get_aliased_field(path_with_field, join_manager)
         path = JSONAPI::Path.new(resource_klass: self, path_string: path_with_field)
