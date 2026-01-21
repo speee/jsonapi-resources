@@ -24,9 +24,27 @@ which *should* be compatible with JSON:API compliant server implementations such
 
 ## Installation
 
-Add JR to your application's `Gemfile`:
+### Speee Fork
 
+This is the Speee fork of jsonapi-resources. To use this fork, add the following to your application's `Gemfile`:
+
+```ruby
+gem 'jsonapi-resources', github: 'speee/jsonapi-resources', tag: 'v26.1.1'
 ```
+
+Then execute:
+
+```bash
+bundle install
+```
+
+You can find available tags at [https://github.com/speee/jsonapi-resources/tags](https://github.com/speee/jsonapi-resources/tags).
+
+### Original (upstream)
+
+To use the original jsonapi-resources gem from RubyGems, add it to your application's `Gemfile`:
+
+```ruby
 gem 'jsonapi-resources'
 ```
 
