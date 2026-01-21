@@ -585,6 +585,16 @@ class ActionDispatch::IntegrationTest
     assert_equal expected_status, status, msg
   end
 
+  # Rails 8.0+ deprecated :unprocessable_entity in favor of :unprocessable_content
+  # This helper maintains backward compatibility in tests
+  def unprocessable_status
+    if Rails::VERSION::MAJOR >= 8
+      :unprocessable_content
+    else
+      :unprocessable_entity
+    end
+  end
+
   def assert_jsonapi_get(url, msg = "GET response must be 200")
     get url, headers: { 'Accept' => JSONAPI::MEDIA_TYPE }
     assert_jsonapi_response 200, msg

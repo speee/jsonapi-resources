@@ -28,6 +28,7 @@ when 'master'
   gem 'arel', { git: 'https://github.com/rails/arel.git' }
 when 'default'
   gem 'railties', '>= 6.0'
+  gem 'csv'  # Required by Rails 8.1+ (removed from standard library)
 else
   gem 'railties', "~> #{version}"
 end

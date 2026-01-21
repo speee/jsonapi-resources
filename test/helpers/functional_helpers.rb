@@ -55,5 +55,15 @@ module Helpers
     def json_response
       JSON.parse(@response.body)
     end
+
+    # Rails 8.0+ deprecated :unprocessable_entity in favor of :unprocessable_content
+    # This helper maintains backward compatibility in tests
+    def unprocessable_status
+      if Rails::VERSION::MAJOR >= 8
+        :unprocessable_content
+      else
+        :unprocessable_entity
+      end
+    end
   end
 end

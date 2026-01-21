@@ -18,6 +18,18 @@ module JSONAPI
         raise NotImplementedError, "Subclass of Error must implement errors method"
         # :nocov:
       end
+
+      private
+
+      # Rails 8.0+ deprecated :unprocessable_entity in favor of :unprocessable_content
+      # This helper maintains backward compatibility with earlier Rails versions
+      def unprocessable_status
+        if Rails::VERSION::MAJOR >= 8
+          :unprocessable_content
+        else
+          :unprocessable_entity
+        end
+      end
     end
 
     class Errors < Error
@@ -498,7 +510,7 @@ module JSONAPI
 
       def json_api_error(attr_key, message)
         create_error_object(code: JSONAPI::VALIDATION_ERROR,
-                            status: :unprocessable_entity,
+                            status: unprocessable_status,
                             title: message,
                             detail: detail(attr_key, message),
                             source: { pointer: pointer(attr_key) },
@@ -532,7 +544,7 @@ module JSONAPI
     class SaveFailed < Error
       def errors
         [create_error_object(code: JSONAPI::SAVE_FAILED,
-                             status: :unprocessable_entity,
+                             status: unprocessable_status,
                              title: I18n.translate('jsonapi-resources.exceptions.save_failed.title',
                                                    default: 'Save failed or was cancelled'),
                              detail: I18n.translate('jsonapi-resources.exceptions.save_failed.detail',
