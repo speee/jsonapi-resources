@@ -13,12 +13,12 @@ platforms :ruby do
   gem 'mysql2'
 
   if version.start_with?('4.2', '5.0')
-    gem 'sqlite3', '~> 1.3.13'
+    gem 'sqlite3', '~> 2.9'
   elsif version.start_with?('8.')
     # Rails 8.0+ requires sqlite3 >= 2.1
-    gem 'sqlite3', '>= 2.1'
+    gem 'sqlite3', '~> 2.9'
   else
-    gem 'sqlite3', '~> 1.4'
+    gem 'sqlite3', '~> 2.9'
   end
 end
 
