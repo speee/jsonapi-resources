@@ -2695,11 +2695,14 @@ end
 # ActiveModel class without ActiveRecord
 class SimpleModel
   include ActiveModel::Model
-  include ActiveModel::Attributes
 
-  attribute :id, :integer
-  attribute :name, :string
-  attribute :description, :string
+  attr_accessor :id, :name, :description
+
+  def initialize(attributes = {})
+    @id = attributes[:id]
+    @name = attributes[:name]
+    @description = attributes[:description]
+  end
 
   # Simple in-memory store for testing
   @@store = {}
