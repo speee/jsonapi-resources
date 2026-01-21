@@ -328,13 +328,18 @@ module JSONAPI
   # Rails 7.2+ made ActiveSupport::Deprecation.warn a private method
   # This helper provides backward-compatible deprecation warnings
   def self.warn_deprecated(message)
-    if defined?(ActiveSupport::Deprecation) && ActiveSupport::Deprecation.respond_to?(:warn)
-      # Rails < 7.2
-      ActiveSupport::Deprecation.warn(message)
+    if defined?(ActiveSupport::Deprecation)
+      begin
+        # Try to call warn as a class method (Rails < 7.2)
+        ActiveSupport::Deprecation.warn(message)
+      rescue NoMethodError
+        # Rails 7.2+: warn is now private, use instance method instead
+        version = defined?(JSONAPI::Resources::VERSION) ? JSONAPI::Resources::VERSION : '0.11.0'
+        deprecation = ActiveSupport::Deprecation.new(version, 'jsonapi-resources')
+        deprecation.warn(message)
+      end
     else
-      # Rails 7.2+ or fallback - use standard warning with deprecation formatting
-      # Rails 7.2 doesn't provide a public API for custom deprecation warnings
-      # So we use Kernel#warn with a deprecation prefix
+      # Fallback for environments without ActiveSupport
       warn "[DEPRECATION] #{message}"
     end
   end
