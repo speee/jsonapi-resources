@@ -429,6 +429,18 @@ ActiveRecord::Schema.define do
     t.integer :version
     t.timestamps null: false
   end
+
+  # Tables for testing Issue #1473: Polymorphic has_many with foreign_key_on: :related
+  create_table :articles, force: true do |t|
+    t.string :title
+    t.timestamps null: false
+  end
+
+  create_table :article_comments, force: true do |t|
+    t.text :content
+    t.references :commentable, polymorphic: true, index: true
+    t.timestamps null: false
+  end
 end
 
 ### MODELS
@@ -868,6 +880,15 @@ class ListItem < ActiveRecord::Base
   belongs_to :list, inverse_of: :items
 end
 
+# Models for testing Issue #1473: Polymorphic has_many with foreign_key_on: :related
+class Article < ActiveRecord::Base
+  has_many :article_comments, as: :commentable
+end
+
+class ArticleComment < ActiveRecord::Base
+  belongs_to :commentable, polymorphic: true
+end
+
 ### CONTROLLERS
 class SessionsController < ActionController::Base
   include JSONAPI::ActsAsResourceController
@@ -1228,6 +1249,13 @@ class IndicatorsController < JSONAPI::ResourceController
 end
 
 class RobotsController < JSONAPI::ResourceController
+end
+
+# Controllers for testing Issue #1473
+class ArticlesController < JSONAPI::ResourceController
+end
+
+class ArticleCommentsController < JSONAPI::ResourceController
 end
 
 ### RESOURCES
@@ -2689,6 +2717,17 @@ class RobotResource < ::JSONAPI::Resource
   sort :lower_name, apply: ->(records, direction, _context) do
     records.order("LOWER(robots.name) #{direction}")
   end
+end
+
+# Resources for testing Issue #1473: Polymorphic has_many with foreign_key_on: :related
+class ArticleResource < JSONAPI::Resource
+  attribute :title
+  has_many :article_comments, foreign_key_on: :related
+end
+
+class ArticleCommentResource < JSONAPI::Resource
+  attribute :content
+  has_one :commentable, polymorphic: true
 end
 
 # Models and Resources for testing Issue #1467: ActiveModel-based resources

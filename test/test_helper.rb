@@ -340,6 +340,10 @@ TestApp.routes.draw do
   jsonapi_resources :employees
   jsonapi_resources :robots
 
+  # Routes for testing Issue #1473
+  jsonapi_resources :articles
+  jsonapi_resources :article_comments
+
   jsonapi_resources :lists
   jsonapi_resources :list_items
 
