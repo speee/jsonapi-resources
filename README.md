@@ -9,6 +9,36 @@ of your resources, including their attributes and relationships, to make your se
 JR is designed to work with Rails 5.1+, and provides custom routes, controllers, and serializers. JR's resources may be
 backed by ActiveRecord models or by custom objects.
 
+## Speee Fork
+
+This is the [Speee](https://speee.jp/) fork of [jsonapi-resources](https://github.com/cerebris/jsonapi-resources).
+
+### Goals
+
+- **Modern Rails Support**: Enable compatibility with the latest Rails versions (7.1, 7.2, 8.0, 8.1+)
+- **0.9.x Backward Compatibility**: Maintain compatibility with code written for jsonapi-resources 0.9.x
+
+### Key Changes from Upstream
+
+#### Rails Compatibility
+- Full support for Rails 7.1, 7.2, 8.0, and 8.1
+- Rack 3.0 compatibility fixes
+- Rails 8.2 deprecation warning fixes
+
+#### 0.9.x Backward Compatibility
+- `result.resource` and `result.resources` accessors on operation results
+- `apply_filters` method made public for custom filter implementations
+- PORO (Plain Old Ruby Object) support in `find_fragments`
+
+#### Bug Fixes
+- MySQL compatibility fix for the `quote` method (uses database adapter)
+- Ruby 2.6/2.7 compatibility for `Psych.unsafe_load`
+
+#### Development
+- Docker support for multi-version Rails testing
+- Comprehensive CI matrix covering Ruby 2.6-3.4 and Rails 5.1-8.1
+- SimpleCov integration for test coverage measurement
+
 ## Documentation
 
 Full documentation can be found at [http://jsonapi-resources.com](http://jsonapi-resources.com), including the [v0.10 alpha Guide](http://jsonapi-resources.com/v0.10/guide/) specific to this version.
@@ -24,9 +54,9 @@ which *should* be compatible with JSON:API compliant server implementations such
 
 ## Installation
 
-### Speee Fork
+### Using This Fork
 
-This is the Speee fork of jsonapi-resources. To use this fork, add the following to your application's `Gemfile`:
+To use this fork, add the following to your application's `Gemfile`:
 
 ```ruby
 gem 'jsonapi-resources', github: 'speee/jsonapi-resources', tag: 'v26.1.1'
