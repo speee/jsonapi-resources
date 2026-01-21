@@ -243,4 +243,45 @@ class RoutesTest < ActionDispatch::IntegrationTest
 
   # Test that non-acts-as-set to_many relationship update route is not created
 
+  # Rails 8.1 compatibility tests (Issue #1479)
+  # These tests verify that jsonapi_resources generates relationship routes correctly
+  # in Rails 8.1+, where ActionDispatch::Routing::Mapper::Resources::Resource#initialize
+  # changed to require keyword arguments.
+
+  def test_routing_articles_show
+    assert_routing({path: '/articles/1', method: :get},
+                   {action: 'show', controller: 'articles', id: '1'})
+  end
+
+  def test_routing_articles_relationship_comments_show
+    # Tests that has_many relationship routes are automatically generated
+    # when using jsonapi_resources without an explicit block
+    assert_routing({path: '/articles/1/relationships/article_comments', method: :get},
+                   {controller: 'articles', action: 'show_relationship', article_id: '1', relationship: 'article_comments'})
+  end
+
+  def test_routing_articles_relationship_comments_create
+    # Tests to_many relationship creation route
+    assert_routing({path: '/articles/1/relationships/article_comments', method: :post},
+                   {controller: 'articles', action: 'create_relationship', article_id: '1', relationship: 'article_comments'})
+  end
+
+  def test_routing_articles_relationship_comments_update
+    # Tests to_many relationship update route
+    assert_routing({path: '/articles/1/relationships/article_comments', method: :patch},
+                   {controller: 'articles', action: 'update_relationship', article_id: '1', relationship: 'article_comments'})
+  end
+
+  def test_routing_articles_relationship_comments_destroy
+    # Tests to_many relationship deletion route
+    assert_routing({path: '/articles/1/relationships/article_comments', method: :delete},
+                   {controller: 'articles', action: 'destroy_relationship', article_id: '1', relationship: 'article_comments'})
+  end
+
+  def test_routing_article_comments_relationship_commentable_show
+    # Tests polymorphic belongs_to relationship route
+    assert_routing({path: '/article_comments/1/relationships/commentable', method: :get},
+                   {controller: 'article_comments', action: 'show_relationship', article_comment_id: '1', relationship: 'commentable'})
+  end
+
 end
