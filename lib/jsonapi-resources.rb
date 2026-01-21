@@ -9,13 +9,10 @@ require 'jsonapi/resource'
 require 'jsonapi/cached_response_fragment'
 require 'jsonapi/response_document'
 require 'jsonapi/acts_as_resource_controller'
-if Rails::VERSION::MAJOR >= 6
-  ActiveSupport.on_load(:action_controller_base) do
-    require 'jsonapi/resource_controller'
-  end
-else
-  require 'jsonapi/resource_controller'
-end
+# Load resource_controller directly to avoid Zeitwerk autoloading issues in Rails 7.1+
+# Previously used ActiveSupport.on_load which caused race conditions with Zeitwerk
+# See: https://github.com/cerebris/jsonapi-resources/issues/1464
+require 'jsonapi/resource_controller'
 require 'jsonapi/resource_controller_metal'
 require 'jsonapi/resources/version'
 require 'jsonapi/configuration'
