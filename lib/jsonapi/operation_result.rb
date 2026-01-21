@@ -21,6 +21,35 @@ module JSONAPI
     end
   end
 
+  # Backward compatibility module for 0.9.x result.resource access
+  # In 0.9.x, OperationResult had a `resource` accessor that returned the single resource.
+  # This module provides the same interface for code that relied on `result.resource`.
+  module ResourceSetResultMethods
+    # Returns the first resource from the resource_set
+    def resource
+      each_resource { |r| return r }
+      nil
+    end
+
+    # Returns all resources from the resource_set
+    def resources
+      result = []
+      each_resource { |r| result << r }
+      result
+    end
+
+    private
+
+    def each_resource
+      return unless resource_set&.resource_klasses
+      resource_set.resource_klasses.each_value do |identities|
+        identities.each_value do |data|
+          yield data[:resource] if data[:resource]
+        end
+      end
+    end
+  end
+
   class ErrorsOperationResult < OperationResult
     attr_accessor :errors
 
@@ -41,6 +70,8 @@ module JSONAPI
   end
 
   class ResourceSetOperationResult < OperationResult
+    include ResourceSetResultMethods
+
     attr_accessor :resource_set, :pagination_params
 
     def initialize(code, resource_set, options = {})
@@ -58,35 +89,11 @@ module JSONAPI
         # :nocov:
       end
     end
-
-    # Returns the first resource from the resource_set for backward compatibility with 0.9.x
-    # In 0.9.x, OperationResult had a `resource` accessor that returned the single resource.
-    # This method provides the same interface for code that relied on `result.resource`.
-    def resource
-      return nil unless resource_set&.resource_klasses
-      resource_set.resource_klasses.each_value do |identities|
-        identities.each_value do |data|
-          return data[:resource] if data[:resource]
-        end
-      end
-      nil
-    end
-
-    # Returns all resources from the resource_set for backward compatibility with 0.9.x
-    # Useful when the result contains multiple resources.
-    def resources
-      return [] unless resource_set&.resource_klasses
-      result = []
-      resource_set.resource_klasses.each_value do |identities|
-        identities.each_value do |data|
-          result << data[:resource] if data[:resource]
-        end
-      end
-      result
-    end
   end
 
   class ResourcesSetOperationResult < OperationResult
+    include ResourceSetResultMethods
+
     attr_accessor :resource_set, :pagination_params, :record_count, :page_count
 
     def initialize(code, resource_set, options = {})
@@ -105,29 +112,6 @@ module JSONAPI
         {}
         # :nocov:
       end
-    end
-
-    # Returns the first resource from the resource_set for backward compatibility with 0.9.x
-    def resource
-      return nil unless resource_set&.resource_klasses
-      resource_set.resource_klasses.each_value do |identities|
-        identities.each_value do |data|
-          return data[:resource] if data[:resource]
-        end
-      end
-      nil
-    end
-
-    # Returns all resources from the resource_set for backward compatibility with 0.9.x
-    def resources
-      return [] unless resource_set&.resource_klasses
-      result = []
-      resource_set.resource_klasses.each_value do |identities|
-        identities.each_value do |data|
-          result << data[:resource] if data[:resource]
-        end
-      end
-      result
     end
   end
 
