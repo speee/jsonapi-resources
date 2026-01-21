@@ -2,12 +2,20 @@
 
 module JSONAPI
   class ResourceControllerMetal < ActionController::Metal
+    # ActionController::ForceSSL was removed in Rails 8.0
+    # It existed in Rails < 6.1, and force_ssl is now integrated into ActionController::Base
+    FORCE_SSL_MODULE = if Gem::Requirement.new('< 6.1').satisfied_by?(ActionPack.gem_version)
+                         defined?(ActionController::ForceSSL) ? ActionController::ForceSSL : nil
+                       else
+                         nil
+                       end
+
     MODULES = [
       AbstractController::Rendering,
       ActionController::Rendering,
       ActionController::Renderers::All,
       ActionController::StrongParameters,
-      Gem::Requirement.new('< 6.1').satisfied_by?(ActionPack.gem_version) ? ActionController::ForceSSL : nil,
+      FORCE_SSL_MODULE,
       ActionController::Instrumentation,
       JSONAPI::ActsAsResourceController
     ].compact.freeze
