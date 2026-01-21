@@ -2691,6 +2691,92 @@ class RobotResource < ::JSONAPI::Resource
   end
 end
 
+# Models and Resources for testing Issue #1467: ActiveModel-based resources
+# ActiveModel class without ActiveRecord
+class SimpleModel
+  include ActiveModel::Model
+
+  attr_accessor :id, :name, :description
+
+  def initialize(attributes = {})
+    @id = attributes[:id]
+    @name = attributes[:name]
+    @description = attributes[:description]
+  end
+
+  # Simple in-memory store for testing
+  @@store = {}
+
+  def self.reset_store!
+    @@store = {}
+  end
+
+  def self.create(attributes)
+    model = new(attributes)
+    @@store[model.id] = model
+    model
+  end
+
+  def self.find(id)
+    @@store[id]
+  end
+
+  def self.all
+    @@store.values
+  end
+
+  def self.find_by(attributes)
+    all.find { |model| attributes.all? { |key, value| model.send(key) == value } }
+  end
+end
+
+class SimpleModelResource < JSONAPI::BasicResource
+  model_name 'SimpleModel'
+  model_hint model: SimpleModel, resource: :simple_model
+
+  attribute :name
+  attribute :description
+
+  # Override find_by_key for non-ActiveRecord models
+  def self.find_by_key(key, options = {})
+    model = _model_class.find(key.to_i)
+    return nil unless model
+    new(model, options[:context])
+  end
+
+  # Override find_fragments for non-ActiveRecord models
+  def self.find_fragments(filters, options = {})
+    models = if filters.empty?
+      _model_class.all
+    else
+      # Simple filtering implementation
+      _model_class.all.select do |model|
+        filters.all? { |key, value| model.send(key).to_s == value.to_s }
+      end
+    end
+
+    models.each_with_object({}) do |model, hash|
+      resource = new(model, options[:context])
+      hash[resource.identity] = {
+        identity: resource.identity,
+        cache: nil,
+        attributes: nil,
+        related: nil
+      }
+    end
+  end
+end
+
+# This resource uses the default JSONAPI::Resource (ActiveRelationResource)
+# which will fail with ActiveModel models - reproduces Issue #1467
+class BrokenActiveModelResource < JSONAPI::Resource
+  model_name 'SimpleModel'
+  model_hint model: SimpleModel, resource: :broken_active_model
+
+  attribute :name
+  attribute :description
+end
+
 ### PORO Data - don't do this in a production app
 $breed_data = BreedData.new
 $breed_data.add(Breed.new(0, 'persian'))
