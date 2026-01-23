@@ -234,16 +234,31 @@ module JSONAPI
       resource = resource_klass.create(context)
       result = resource.replace_fields(data)
 
-      options = {
-        context: context,
-        fields: fields,
-        filters: { resource_klass._primary_key => resource.id },
-        include_directives: include_directives
-      }
+      # PORO compatibility: if model doesn't respond to :all, use created resource directly
+      # This restores 0.9.x behavior for PORO models without requiring find_by_key override
+      if resource_klass._model_class.respond_to?(:all)
+        # ActiveRecord path: use find_resource_set for optimized queries with includes
+        options = {
+          context: context,
+          fields: fields,
+          filters: { resource_klass._primary_key => resource.id },
+          include_directives: include_directives
+        }
 
-      resource_set = find_resource_set(include_directives, options)
-
-      resource_set.populate!(serializer, context, options)
+        resource_set = find_resource_set(include_directives, options)
+        resource_set.populate!(serializer, context, options)
+      else
+        # PORO path: use created resource directly (0.9.x behavior)
+        # ResourceSet will use the resource without calling find
+        resource_set = JSONAPI::ResourceSet.new(resource, include_directives[:include_related], {
+          context: context,
+          fields: fields
+        })
+        resource_set.populate!(serializer, context, {
+          context: context,
+          fields: fields
+        })
+      end
 
       JSONAPI::ResourceSetOperationResult.new((result == :completed ? :created : :accepted), resource_set, result_options)
     end
