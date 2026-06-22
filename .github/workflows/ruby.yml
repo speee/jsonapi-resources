@@ -126,7 +126,7 @@ jobs:
       DATABASE_URL: ${{ matrix.database_url }}
     name: Ruby ${{ matrix.ruby }} Rails ${{ matrix.rails }} DB ${{ matrix.database_url }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
